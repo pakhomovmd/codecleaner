@@ -1,0 +1,57 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+<header class="bg-white shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+       <button 
+        routerLink="/projects" 
+        class="text-2xl font-bold text-gray-800">
+        🧹CodeCleaner
+      </button>
+    <div class="flex gap-4 items-center">
+      <button 
+        routerLink="/projects" 
+        class="text-gray-600 hover:text-blue-600 font-medium transition duration-200">
+        Проекты
+      </button>
+      <button 
+        routerLink="/profile" 
+        class="text-blue-600 font-semibold">
+        Профиль
+      </button>
+      <button 
+        (click)="logout()" 
+        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
+        Выйти
+      </button>
+    </div>
+  </div>
+</header>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-md p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">👤 Личный кабинет</h2>
+
+      <div *ngIf="loading" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-gray-500 mt-2">Загрузка...</p>
+      </div>
+
+      <div *ngIf="!loading" class="space-y-4">
+        <div class="border-b border-gray-200 pb-4">
+          <p class="text-sm text-gray-500">Имя</p>
+          <p class="text-lg font-semibold text-gray-800">{{ user.fullName || 'Не указано' }}</p>
+        </div>
+
+        <div class="border-b border-gray-200 pb-4">
+          <p class="text-sm text-gray-500">Email</p>
+          <p class="text-lg font-semibold text-gray-800">{{ user.email }}</p>
+        </div>
+
+        <div class="border-b border-gray-200 pb-4">
+          <p class="text-sm text-gray-500">Роль</p>
+          <p class="text-lg font-semibold text-gray-800">{{ user.role || 'Пользователь' }}</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

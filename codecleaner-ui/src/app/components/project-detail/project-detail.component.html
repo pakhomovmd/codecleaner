@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                 <button 
+        routerLink="/projects" 
+        class="text-2xl font-bold text-gray-800">
+        🧹CodeCleaner
+      </button>
+      <div class="flex gap-4 items-center">
+        <button routerLink="/projects" class="text-gray-600 hover:text-blue-600">Проекты</button>
+        <button routerLink="/profile" class="text-gray-600 hover:text-blue-600">Профиль</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <button (click)="goBack()" class="mb-4 text-blue-600 hover:text-blue-800">← Назад к проектам</button>
+
+    <div *ngIf="loading" class="text-center py-8">Загрузка...</div>
+
+    <div *ngIf="!loading && project">
+      <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ project.name }}</h2>
+        <p class="text-blue-600 mb-2">{{ project.repoUrl }}</p>
+        <p *ngIf="project.description" class="text-gray-600">{{ project.description }}</p>
+      </div>
+
+      <!-- Загрузка ZIP -->
+      <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">📤 Загрузить проект для анализа</h3>
+        <p class="text-sm text-gray-500 mb-4">Загрузите ZIP-архив с вашим веб-проектом (CSS, JS, HTML файлы)</p>
+        
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <input type="file" (change)="onFileSelected($event)" accept=".zip" class="hidden" #fileInput>
+          <button (click)="fileInput.click()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg mb-2">
+            Выбрать ZIP-файл
+          </button>
+          <p *ngIf="selectedFile" class="text-sm text-green-600">Выбран: {{ selectedFile.name }}</p>
+          <p class="text-xs text-gray-400">Поддерживаются файлы .zip</p>
+        </div>
+        
+        <button (click)="uploadAndAnalyze()" 
+                [disabled]="!selectedFile || uploading"
+                class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400">
+          {{ uploading ? 'Анализируется...' : 'Загрузить и анализировать' }}
+        </button>
+        
+        <p *ngIf="uploadStatus" class="mt-2 text-sm" [class.text-green-600]="uploadStatus.includes('запущен')" [class.text-red-600]="uploadStatus.includes('Ошибка')">
+          {{ uploadStatus }}
+        </p>
+      </div>
+
+      <!-- История анализов -->
+      <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 История анализов</h3>
+        
+        <div *ngIf="analyses.length === 0" class="text-center py-4 text-gray-500">
+          Нет проведённых анализов. Загрузите ZIP-архив для первого анализа.
+        </div>
+        
+        <div *ngIf="analyses.length > 0" class="space-y-3">
+          <div *ngFor="let analysis of analyses" 
+               (click)="viewAnalysis(analysis.id)"
+               class="border border-gray-200 rounded-lg p-4 hover:shadow-md cursor-pointer">
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="font-medium">Анализ #{{ analysis.id }}</span>
+                <span class="text-sm text-gray-500 ml-2">{{ analysis.startTime | date:'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+              <span [class]="analysis.status === 'COMPLETED' ? 'text-green-600' : 'text-yellow-600'">
+                {{ analysis.status === 'COMPLETED' ? '✅ Завершён' : '🔄 В процессе' }}
+              </span>
+            </div>
+            <div *ngIf="analysis.healthScore !== null" class="mt-2">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" [style.width.%]="analysis.healthScore"></div>
+              </div>
+              <p class="text-sm text-gray-600 mt-1">Здоровье кода: {{ analysis.healthScore }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
