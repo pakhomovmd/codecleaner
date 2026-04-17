@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProjectService, Project } from '../../services/project.service';
-import { AnalysisService } from '../../services/analysis.service';
+import { AnalysisService, AnalysisMethod } from '../../services/analysis.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -22,6 +22,10 @@ export class ProjectDetailComponent implements OnInit {
   uploadStatus = '';
   uploading = false;
   
+  // Методы анализа
+  analysisMethods: AnalysisMethod[] = [];
+  selectedMethod: string = 'SIMPLE_TEXT_SEARCH';
+  
   // Результаты анализов
   analyses: any[] = [];
   selectedAnalysis: any = null;
@@ -39,6 +43,7 @@ export class ProjectDetailComponent implements OnInit {
       if (this.projectId) {
         this.loadProject();
         this.loadAnalyses();
+        this.loadAnalysisMethods();
       }
     });
   }
@@ -66,6 +71,15 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
+  loadAnalysisMethods(): void {
+    this.analysisService.getAnalysisMethods().subscribe({
+      next: (data) => {
+        this.analysisMethods = data;
+      },
+      error: (err) => console.error('Error loading analysis methods:', err)
+    });
+  }
+
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
     this.uploadStatus = '';
@@ -80,9 +94,9 @@ export class ProjectDetailComponent implements OnInit {
     this.uploading = true;
     this.uploadStatus = 'Загрузка и анализ...';
     
-    this.analysisService.uploadAndAnalyze(this.projectId!, this.selectedFile).subscribe({
+    this.analysisService.uploadAndAnalyze(this.projectId!, this.selectedFile, this.selectedMethod).subscribe({
       next: (response) => {
-        this.uploadStatus = 'Анализ запущен!';
+        this.uploadStatus = 'Анализ завершён!';
         this.uploading = false;
         this.selectedFile = null;
         // Обновляем список анализов через 2 секунды
@@ -90,17 +104,59 @@ export class ProjectDetailComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.uploadStatus = 'Ошибка: ' + (err.error || err.message);
+        this.uploadStatus = 'Ошибка: ' + (err.error?.error || err.message);
         this.uploading = false;
       }
     });
   }
 
-viewAnalysis(analysisId: number): void {
-  this.router.navigate(['/analysis', analysisId]);
-}
+  viewAnalysis(analysisId: number): void {
+    this.router.navigate(['/analysis', analysisId]);
+  }
 
   goBack(): void {
     this.router.navigate(['/projects']);
+  }
+
+  getMethodDisplayName(methodName: string): string {
+    const method = this.analysisMethods.find(m => m.name === methodName);
+    return method ? method.displayName : methodName;
+  }
+
+  getSelectedMethodDescription(): string {
+    const method = this.analysisMethods.find(m => m.name === this.selectedMethod);
+    return method ? method.description : '';
+  }
+
+  deleteAnalysis(event: Event, analysisId: number): void {
+    event.stopPropagation();
+    
+    if (confirm('Вы уверены, что хотите удалить этот анализ?')) {
+      this.analysisService.deleteAnalysis(analysisId).subscribe({
+        next: () => {
+          console.log('Analysis deleted successfully');
+          this.loadAnalyses();
+        },
+        error: (err) => {
+          console.error('Error deleting analysis:', err);
+          alert('Ошибка при удалении анализа: ' + (err.error?.message || err.message));
+        }
+      });
+    }
+  }
+
+  deleteAllAnalyses(): void {
+    if (confirm('Вы уверены, что хотите удалить ВСЮ историю анализов? Это действие нельзя отменить.')) {
+      this.analysisService.deleteAllAnalysesByProject(this.projectId!).subscribe({
+        next: () => {
+          console.log('All analyses deleted successfully');
+          this.loadAnalyses();
+        },
+        error: (err) => {
+          console.error('Error deleting all analyses:', err);
+          alert('Ошибка при удалении истории: ' + (err.error?.message || err.message));
+        }
+      });
+    }
   }
 }

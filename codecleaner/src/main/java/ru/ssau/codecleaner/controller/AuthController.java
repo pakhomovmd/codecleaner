@@ -1,79 +1,110 @@
 package ru.ssau.codecleaner.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+import ru.ssau.codecleaner.dto.AuthRequest;
+import ru.ssau.codecleaner.dto.AuthResponse;
 import ru.ssau.codecleaner.dto.SignUpRequest;
-import ru.ssau.codecleaner.dto.LoginResponse;
-import ru.ssau.codecleaner.entity.Role;
+import ru.ssau.codecleaner.dto.UserDto;
 import ru.ssau.codecleaner.entity.User;
 import ru.ssau.codecleaner.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import ru.ssau.codecleaner.service.CustomUserDetailsService;
+import ru.ssau.codecleaner.service.TokenService;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class AuthController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenService tokenService;
+    private final UserRepository userRepository;
+    private final CustomUserDetailsService userDetailsService;
+
+    public AuthController(AuthenticationManager authenticationManager,
+                         TokenService tokenService,
+                         UserRepository userRepository,
+                         CustomUserDetailsService userDetailsService) {
+        this.authenticationManager = authenticationManager;
+        this.tokenService = tokenService;
+        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signupRequest) {
-        // Проверяем, существует ли пользователь
-        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already exists!");
-        }
-
-        // Создаём нового пользователя
-        User user = new User();
-        user.setEmail(signupRequest.getEmail());
-        user.setPassword(signupRequest.getPassword());
-        user.setFullName(signupRequest.getFullName());
-        user.setRole(Role.VIEWER);
-        user.setCreatedAt(LocalDateTime.now());
-
-        userRepository.save(user);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "User registered successfully!");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signupRequest) {
+        UserDto userDto = userDetailsService.registerUser(signupRequest);
+        return ResponseEntity.ok(Map.of("message", "User registered successfully!", "email", userDto.getEmail()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestParam String email, @RequestParam String password) {
-        User user = userRepository.findByEmail(email).orElse(null);
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
 
-        if (user == null || !user.getPassword().equals(password)) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(role -> role.startsWith("ROLE_"))
+                .collect(Collectors.toList());
+
+        String accessToken = tokenService.createAccessToken(user.getId(), user.getEmail(), roles);
+        String refreshToken = tokenService.createRefreshToken(user.getId());
+
+        return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+
+        if (refreshToken == null) {
+            return ResponseEntity.badRequest().build();
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", user.getId());        // <-- обязательно
-        response.put("email", user.getEmail());
-        response.put("fullName", user.getFullName());
-        response.put("role", user.getRole().name());
+        try {
+            var payload = tokenService.verifyToken(refreshToken);
+            Long userId = ((Number) payload.get("userId")).longValue();
 
-        return ResponseEntity.ok(response);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            List<String> roles = List.of("ROLE_" + user.getRole().name());
+
+            String newAccessToken = tokenService.createAccessToken(userId, user.getEmail(), roles);
+
+            return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@RequestParam String email) {
-        User user = userRepository.findByEmail(email).orElse(null);
+    public ResponseEntity<UserDto> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
         }
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", user.getId());
-        response.put("email", user.getEmail());
-        response.put("fullName", user.getFullName());
-        response.put("role", user.getRole().name());
+        String email = authentication.getName();
+        UserDto userDto = userDetailsService.getUserByEmail(email);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userDto);
     }
 }

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProjectService, Project } from '../../services/project.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-project-list',
@@ -19,11 +20,12 @@ export class ProjectListComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    const userStr = localStorage.getItem('user');
+    const userStr = sessionStorage.getItem('user');
     if (!userStr) {
       this.router.navigate(['/login']);
       return;
@@ -63,33 +65,89 @@ export class ProjectListComponent implements OnInit {
       return;
     }
     
+    // Валидация длины имени
+    if (this.newProject.name.length < 3) {
+      alert('Название проекта должно содержать минимум 3 символа');
+      return;
+    }
+    
+    // Валидация URL - добавляем http:// если не указан протокол
+    let repoUrl = this.newProject.repoUrl.trim();
+    if (!repoUrl.startsWith('http://') && !repoUrl.startsWith('https://')) {
+      repoUrl = 'https://' + repoUrl;
+      this.newProject.repoUrl = repoUrl;
+    }
+    
     if (!this.currentUserId) {
       alert('Пользователь не найден. Пожалуйста, войдите заново.');
       this.router.navigate(['/login']);
       return;
     }
     
-    console.log('Creating project with userId:', this.currentUserId);
+    console.log('Creating project with data:', {
+      name: this.newProject.name,
+      repoUrl: this.newProject.repoUrl,
+      description: this.newProject.description,
+      userId: this.currentUserId
+    });
     
     this.projectService.createProject(this.newProject, this.currentUserId).subscribe({
       next: () => {
         console.log('Project created successfully');
+        alert('Проект успешно создан!');
         this.loadProjects();
         this.newProject = { name: '', repoUrl: '', description: '' };
       },
       error: (err) => {
         console.error('Error creating project:', err);
-        alert('Ошибка при создании проекта: ' + (err.error?.message || err.message));
+        console.error('Error details:', err.error);
+        
+        let errorMessage = 'Ошибка при создании проекта';
+        if (err.error?.errors) {
+          // Обработка ошибок валидации
+          const validationErrors = Object.entries(err.error.errors)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join('\n');
+          errorMessage += ':\n' + validationErrors;
+        } else if (err.error?.message) {
+          errorMessage += ': ' + err.error.message;
+        } else if (err.message) {
+          errorMessage += ': ' + err.message;
+        }
+        
+        alert(errorMessage);
       }
     });
   }
 
   logout(): void {
-    localStorage.removeItem('user');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   openProject(projectId: number): void {
-  this.router.navigate(['/project', projectId]);
-}
+    this.router.navigate(['/project', projectId]);
+  }
+
+  deleteProject(event: Event, projectId: number, projectName: string): void {
+    event.stopPropagation(); // Предотвращаем открытие проекта при клике на удаление
+    
+    if (confirm(`Вы уверены, что хотите удалить проект "${projectName}"? Это действие нельзя отменить.`)) {
+      this.projectService.deleteProject(projectId).subscribe({
+        next: () => {
+          console.log('Project deleted successfully');
+          this.loadProjects();
+        },
+        error: (err) => {
+          console.error('Error deleting project:', err);
+          alert('Ошибка при удалении проекта: ' + (err.error?.message || err.message));
+        }
+      });
+    }
+  }
+
+  isAdmin(): boolean {
+    const user = this.authService.getUser();
+    return user?.role === 'ADMIN';
+  }
 }

@@ -1,51 +1,59 @@
 package ru.ssau.codecleaner.controller;
 
-import ru.ssau.codecleaner.dto.ProjectRequest;
-import ru.ssau.codecleaner.entity.Project;
-import ru.ssau.codecleaner.entity.User;
-import ru.ssau.codecleaner.repository.ProjectRepository;
-import ru.ssau.codecleaner.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import ru.ssau.codecleaner.dto.ProjectDto;
+import ru.ssau.codecleaner.dto.ProjectRequest;
+import ru.ssau.codecleaner.service.ProjectService;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
-@CrossOrigin(origins = "http://localhost:4200")
 public class ProjectController {
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
-    @Autowired
-    private UserRepository userRepository;
+    public ProjectController(ProjectService projectService) {
+        this.projectService = projectService;
+    }
 
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+    public ResponseEntity<List<ProjectDto>> getAllProjects() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        
+        List<ProjectDto> projects = projectService.getProjectsByUserEmail(email);
+        return ResponseEntity.ok(projects);
     }
 
     @PostMapping
-    public Project createProject(@RequestBody ProjectRequest request) {
-        User owner = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
-
-        Project project = new Project();
-        project.setName(request.getName());
-        project.setRepoUrl(request.getRepoUrl());
-        project.setDescription(request.getDescription());  // description может быть null
-        project.setOwner(owner);
-        project.setCreatedAt(LocalDateTime.now());
-        project.setIsArchived(false);
-
-        return projectRepository.save(project);
+    public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectRequest request) {
+        System.out.println("📥 Received project creation request:");
+        System.out.println("  Name: " + request.getName());
+        System.out.println("  RepoUrl: " + request.getRepoUrl());
+        System.out.println("  Description: " + request.getDescription());
+        System.out.println("  UserId: " + request.getUserId());
+        
+        ProjectDto project = projectService.createProject(request);
+        System.out.println("✅ Project created successfully with ID: " + project.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(project);
     }
 
     @GetMapping("/{id}")
-    public Project getProject(@PathVariable Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+    public ResponseEntity<ProjectDto> getProject(@PathVariable Long id) {
+        ProjectDto project = projectService.getProjectById(id);
+        return ResponseEntity.ok(project);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.ok().body(Map.of("message", "Project deleted successfully"));
     }
 }

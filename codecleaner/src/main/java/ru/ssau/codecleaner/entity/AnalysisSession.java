@@ -25,6 +25,9 @@ public class AnalysisSession {
     @Enumerated(EnumType.STRING)
     private AnalysisStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private AnalysisMethod analysisMethod;
+
     private String commitHash;
     private Double healthScore;
 
@@ -56,6 +59,9 @@ public class AnalysisSession {
 
     public AnalysisStatus getStatus() { return status; }
     public void setStatus(AnalysisStatus status) { this.status = status; }
+
+    public AnalysisMethod getAnalysisMethod() { return analysisMethod; }
+    public void setAnalysisMethod(AnalysisMethod analysisMethod) { this.analysisMethod = analysisMethod; }
 
     public String getCommitHash() { return commitHash; }
     public void setCommitHash(String commitHash) { this.commitHash = commitHash; }

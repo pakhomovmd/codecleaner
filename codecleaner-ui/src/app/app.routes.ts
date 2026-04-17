@@ -5,6 +5,7 @@ import { ProjectListComponent } from './components/project-list/project-list.com
 import { ProfileComponent } from './components/profile/profile.component';
 import { ProjectDetailComponent } from './components/project-detail/project-detail.component';
 import { AnalysisDetailComponent } from './components/analysis-detail/analysis-detail.component';
+import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/projects', pathMatch: 'full' },
@@ -13,5 +14,6 @@ export const routes: Routes = [
     { path: 'projects', component: ProjectListComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'project/:id', component: ProjectDetailComponent },
-    { path: 'analysis/:id', component: AnalysisDetailComponent }
+    { path: 'analysis/:id', component: AnalysisDetailComponent },
+    { path: 'admin', component: AdminPanelComponent }
 ];

@@ -59,6 +59,10 @@ export class AnalysisDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/project', this.analysis?.project?.id]);
+    if (this.analysis?.projectId) {
+      this.router.navigate(['/project', this.analysis.projectId]);
+    } else {
+      this.router.navigate(['/projects']);
+    }
   }
 }

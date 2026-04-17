@@ -35,6 +35,9 @@
                 — {{ analysis.endTime | date:'dd.MM.yyyy HH:mm:ss' }}
               </span>
             </p>
+            <p *ngIf="analysis.analysisMethod" class="text-sm text-blue-600 mt-1">
+              Метод: {{ analysis.analysisMethod }}
+            </p>
           </div>
           <div class="text-right">
             <span [class]="analysis.status === 'COMPLETED' ? 'text-green-600' : 'text-yellow-600'"

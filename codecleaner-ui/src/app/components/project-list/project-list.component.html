@@ -9,6 +9,7 @@
       </button>
       <div class="flex gap-4 items-center">
         <button routerLink="/projects" class="text-blue-600 font-semibold">Проекты</button>
+        <button *ngIf="isAdmin()" routerLink="/admin" class="text-gray-600 hover:text-blue-600">Админ-панель</button>
         <button routerLink="/profile" class="text-gray-600 hover:text-blue-600">Профиль</button>
         <button (click)="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Выйти</button>
       </div>
@@ -20,9 +21,9 @@
     <div class="bg-white rounded-xl shadow-md p-6 mb-8">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">➕ Новый проект</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input [(ngModel)]="newProject.name" placeholder="Название проекта" class="px-4 py-2 border border-gray-300 rounded-lg">
-        <input [(ngModel)]="newProject.repoUrl" placeholder="URL репозитория" class="px-4 py-2 border border-gray-300 rounded-lg">
-        <input [(ngModel)]="newProject.description" placeholder="Описание" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <input [(ngModel)]="newProject.name" placeholder="Название проекта (мин. 3 символа)" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <input [(ngModel)]="newProject.repoUrl" placeholder="github.com/user/repo" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <input [(ngModel)]="newProject.description" placeholder="Описание (необязательно)" class="px-4 py-2 border border-gray-300 rounded-lg">
       </div>
       <button (click)="createProject()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Добавить проект</button>
     </div>
@@ -41,14 +42,20 @@
 
       <div *ngIf="!loading && projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let project of projects" 
-             (click)="openProject(project.id!)" 
-             class="border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow cursor-pointer hover:border-blue-300">
-          <h3 class="font-semibold text-lg text-gray-800 mb-2">{{ project.name }}</h3>
-          <p class="text-sm text-blue-600 mb-2 break-all">{{ project.repoUrl }}</p>
-          <p *ngIf="project.description" class="text-gray-600 text-sm mb-3">{{ project.description }}</p>
-          <div class="flex justify-between items-center mt-4">
-            <span class="text-xs text-gray-400">Создан: {{ project.createdAt | date:'dd.MM.yyyy' }}</span>
+             class="border border-gray-200 rounded-lg p-5 hover:shadow-lg transition-shadow relative">
+          <div (click)="openProject(project.id!)" class="cursor-pointer">
+            <h3 class="font-semibold text-lg text-gray-800 mb-2">{{ project.name }}</h3>
+            <p class="text-sm text-blue-600 mb-2 break-all">{{ project.repoUrl }}</p>
+            <p *ngIf="project.description" class="text-gray-600 text-sm mb-3">{{ project.description }}</p>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-xs text-gray-400">Создан: {{ project.createdAt | date:'dd.MM.yyyy' }}</span>
+            </div>
           </div>
+          <button (click)="deleteProject($event, project.id!, project.name)" 
+                  class="absolute top-3 right-3 text-red-500 hover:text-red-700 text-xl"
+                  title="Удалить проект">
+            🗑️
+          </button>
         </div>
       </div>
     </div>

@@ -1,11 +1,14 @@
 package ru.ssau.codecleaner.service;
 
+import ru.ssau.codecleaner.dto.ProjectDto;
 import ru.ssau.codecleaner.dto.ProjectRequest;
-import ru.ssau.codecleaner.entity.Project;
 
 import java.util.List;
 
 public interface ProjectService {
-    Project createProject(ProjectRequest request);
-    List<Project> getAllProjects();
+    ProjectDto createProject(ProjectRequest request);
+    List<ProjectDto> getAllProjects();
+    List<ProjectDto> getProjectsByUserEmail(String email);
+    ProjectDto getProjectById(Long id);
+    void deleteProject(Long id);
 }

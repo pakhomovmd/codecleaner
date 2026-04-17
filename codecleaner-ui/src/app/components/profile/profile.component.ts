@@ -31,22 +31,20 @@ export class ProfileComponent implements OnInit {
   loadUserProfile(): void {
     this.loading = true;
     
-    // Получаем email из localStorage
-    const userStr = localStorage.getItem('user');
+    // Получаем user из sessionStorage
+    const userStr = sessionStorage.getItem('user');
     if (userStr) {
       const savedUser = JSON.parse(userStr);
       this.user = savedUser;
       this.loading = false;
     } else {
-      // Если нет в localStorage, пробуем получить по email из логина
-      // Но без email мы не можем, поэтому отправляем на логин
       this.router.navigate(['/login']);
       this.loading = false;
     }
   }
 
   logout(): void {
-    localStorage.removeItem('user');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

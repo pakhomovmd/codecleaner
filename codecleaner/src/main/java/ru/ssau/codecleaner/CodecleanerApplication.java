@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ru.ssau.codecleaner.entity.User;
 import ru.ssau.codecleaner.entity.Role;
@@ -19,17 +20,19 @@ public class CodecleanerApplication {
 	}
 
 	@Bean
-	CommandLineRunner init(UserRepository userRepository) {
+	CommandLineRunner init(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 			if (userRepository.count() == 0) {
 				User user = new User();
 				user.setEmail("test@mail.com");
-				user.setPassword("123");
+				user.setPassword(passwordEncoder.encode("123"));
 				user.setFullName("Test User");
 				user.setRole(Role.ADMIN);
 				user.setCreatedAt(LocalDateTime.now());
 
 				userRepository.save(user);
+				
+				System.out.println("✅ Test user created: test@mail.com / 123");
 			}
 		};
 	}
