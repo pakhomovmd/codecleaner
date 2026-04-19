@@ -17,11 +17,12 @@ public class SpaController {
      * 
      * Примеры:
      * /projects → forward:/index.html (Angular обработает)
+     * /project/6 → forward:/index.html (Angular обработает)
      * /admin → forward:/index.html (Angular обработает)
      * /api/projects → НЕ перехватывается (идёт в ProjectController)
      * /main.js → НЕ перехватывается (статический файл)
      */
-    @GetMapping(value = "/{path:[^\\.]*}")
+    @GetMapping(value = {"/{path:[^\\.]*}", "/{path:[^\\.]*}/**"})
     public String redirect() {
         return "forward:/index.html";
     }
