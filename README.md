@@ -59,7 +59,7 @@ spring.datasource.password=admin
 Из корневой директории выполните:
 
 ```bash
-cd C:\study\webKurs
+cd ..\webKurs
 mvn clean package -DskipTests
 ```
 
