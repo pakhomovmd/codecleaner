@@ -28,13 +28,17 @@ CodeCleaner - это система для исследования эффект
 ## Требования
 
 - Java 17+
-- Node.js 18+
+- Node.js 18+ (только для разработки frontend)
 - PostgreSQL 14+
 - Maven 3.8+
 
 ## Установка и запуск
 
-### 1. Настройка базы данных
+### Быстрый старт (Production)
+
+Проект использует **multi-module Maven структуру** - одна команда собирает frontend и backend в единый JAR файл.
+
+#### 1. Настройка базы данных
 
 Создайте базу данных PostgreSQL:
 
@@ -42,9 +46,7 @@ CodeCleaner - это система для исследования эффект
 CREATE DATABASE codecleaner;
 ```
 
-### 2. Настройка Backend
-
-Перейдите в папку `codecleaner` и настройте подключение к БД в `src/main/resources/application.properties`:
+Настройте подключение в `codecleaner/src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/codecleaner
@@ -52,45 +54,62 @@ spring.datasource.username=postgres
 spring.datasource.password=admin
 ```
 
-Запустите backend:
+#### 2. Сборка проекта
+
+Из корневой директории выполните:
+
+```bash
+cd C:\study\webKurs
+mvn clean package -DskipTests
+```
+
+Эта команда:
+- Собирает Angular frontend (`codecleaner-ui`)
+- Копирует статические файлы в `codecleaner/target/classes/static/`
+- Собирает Spring Boot backend
+- Создает единый JAR файл с встроенным frontend
+
+#### 3. Запуск приложения
+
+```bash
+java -jar codecleaner\target\codecleaner-0.0.1-SNAPSHOT.jar
+```
+
+Или на кастомном порту:
+
+```bash
+java -jar codecleaner\target\codecleaner-0.0.1-SNAPSHOT.jar --server.port=9090
+```
+
+Приложение будет доступно на `http://localhost:8080` (или указанном порту)
+
+### Разработка (Development)
+
+Для разработки с hot-reload запускайте frontend и backend отдельно:
+
+#### Backend:
 
 ```bash
 cd codecleaner
-mvn clean install
 mvn spring-boot:run
 ```
 
-Backend будет доступен на `http://localhost:8080`
+Backend: `http://localhost:8080`
 
-### 3. Настройка Frontend
-
-Перейдите в папку `codecleaner-ui` и установите зависимости:
+#### Frontend:
 
 ```bash
 cd codecleaner-ui
 npm install
-```
-
-Запустите frontend:
-
-```bash
 npm start
 ```
 
-Frontend будет доступен на `http://localhost:4200`
-
-### 4. Быстрый запуск (Windows)
-
-Используйте скрипт `rebuild.bat` в корне проекта для автоматической сборки и запуска:
-
-```bash
-rebuild.bat
-```
+Frontend: `http://localhost:4200`
 
 ## Использование
 
 1. **Регистрация/Вход**
-   - Откройте `http://localhost:4200`
+   - Откройте `http://localhost:8080`
    - Зарегистрируйтесь или войдите (тестовый пользователь: `test@mail.com` / `123`)
 
 2. **Создание проекта**
@@ -175,40 +194,42 @@ webKurs/
 - Проверка 15+ паттернов использования
 - Точность: ~88%
 
-## Разработка
+## Тестирование
 
-### Backend тесты
+### Запуск тестов
+
+Проект включает 13 unit-тестов с использованием **H2 in-memory базы данных** - PostgreSQL не требуется для тестирования.
 
 ```bash
-cd codecleaner
 mvn test
 ```
 
-### Frontend тесты
+Тесты покрывают:
+- Аутентификацию и JWT токены
+- CRUD операции с проектами
+- Анализ кода (все три метода)
+- Управление пользователями (admin функции)
 
-```bash
-cd codecleaner-ui
-npm test
+### Отчет о покрытии кода (JaCoCo)
+
+После запуска тестов отчет доступен в:
+```
+codecleaner/target/site/jacoco/index.html
 ```
 
-### Сборка production
+## Особенности проекта
 
-```bash
-# Frontend
-cd codecleaner-ui
-npm run build
+### Multi-module Maven структура
+- Parent POM управляет версиями зависимостей
+- Frontend автоматически собирается и встраивается в backend JAR
+- Единый артефакт для деплоя
 
-# Backend (включает frontend)
-cd ../codecleaner
-mvn clean package
-```
+### Тестирование с H2
+- Тесты работают без внешней БД
+- Быстрое выполнение
+- Изолированная среда для каждого теста
 
-JAR файл будет создан в `codecleaner/target/codecleaner-0.0.1-SNAPSHOT.jar`
-
-## Лицензия
-
-Учебный проект для курсовой работы по веб-разработке.
-
-## Автор
-
-Курсовая работа по теме "Исследование эффективности методов поиска неиспользуемого кода в веб приложениях"
+### Гибкая конфигурация
+- Запуск на любом порту через `--server.port`
+- Настройка БД через `application.properties`
+- Profile-based конфигурация (dev/prod)
