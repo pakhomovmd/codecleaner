@@ -19,6 +19,9 @@ public class Project {
     private String description;  // <-- это поле должно быть
     private LocalDateTime createdAt;
     private Boolean isArchived = false;
+    
+    @Column(name = "cloned_zip_path")
+    private String clonedZipPath;  // Путь к ZIP архиву клонированного репозитория
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
@@ -64,4 +67,7 @@ public class Project {
 
     public List<AnalysisSession> getAnalysisSessions() { return analysisSessions; }
     public void setAnalysisSessions(List<AnalysisSession> analysisSessions) { this.analysisSessions = analysisSessions; }
+    
+    public String getClonedZipPath() { return clonedZipPath; }
+    public void setClonedZipPath(String clonedZipPath) { this.clonedZipPath = clonedZipPath; }
 }

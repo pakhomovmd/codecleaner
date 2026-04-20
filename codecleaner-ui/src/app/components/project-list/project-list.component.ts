@@ -60,8 +60,8 @@ export class ProjectListComponent implements OnInit {
   }
 
   createProject(): void {
-    if (!this.newProject.name || !this.newProject.repoUrl) {
-      alert('Заполните название и URL репозитория');
+    if (!this.newProject.name) {
+      alert('Заполните название проекта');
       return;
     }
     
@@ -71,11 +71,24 @@ export class ProjectListComponent implements OnInit {
       return;
     }
     
-    // Валидация URL - добавляем http:// если не указан протокол
-    let repoUrl = this.newProject.repoUrl.trim();
-    if (!repoUrl.startsWith('http://') && !repoUrl.startsWith('https://')) {
-      repoUrl = 'https://' + repoUrl;
+    // Валидация URL - добавляем https:// если не указан протокол (только если URL указан)
+    if (this.newProject.repoUrl && this.newProject.repoUrl.trim()) {
+      let repoUrl = this.newProject.repoUrl.trim();
+      
+      // Проверяем, что это GitHub URL
+      if (!repoUrl.includes('github.com')) {
+        alert('Допускаются только GitHub репозитории (https://github.com/user/repo)');
+        return;
+      }
+      
+      if (!repoUrl.startsWith('http://') && !repoUrl.startsWith('https://')) {
+        repoUrl = 'https://' + repoUrl;
+      }
+      
       this.newProject.repoUrl = repoUrl;
+    } else {
+      // Если URL не указан, устанавливаем пустую строку
+      this.newProject.repoUrl = '';
     }
     
     if (!this.currentUserId) {

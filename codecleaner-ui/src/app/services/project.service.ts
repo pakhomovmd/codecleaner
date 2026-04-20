@@ -9,6 +9,7 @@ export interface Project {
   repoUrl: string;
   description?: string;
   createdAt?: string;
+  clonedZipPath?: string;
 }
 
 @Injectable({

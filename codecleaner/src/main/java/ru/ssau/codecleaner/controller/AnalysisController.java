@@ -82,4 +82,24 @@ public class AnalysisController {
         analysisService.deleteAllAnalysesByProject(projectId);
         return ResponseEntity.ok().body(Map.of("message", "All analyses deleted successfully"));
     }
+    
+    @PostMapping("/analyze-cloned/{projectId}")
+    public ResponseEntity<?> analyzeClonedRepository(
+            @PathVariable Long projectId,
+            @RequestParam(value = "method", defaultValue = "SIMPLE_TEXT_SEARCH") String methodName) {
+        
+        try {
+            AnalysisMethod method;
+            try {
+                method = AnalysisMethod.valueOf(methodName);
+            } catch (IllegalArgumentException e) {
+                method = AnalysisMethod.SIMPLE_TEXT_SEARCH;
+            }
+            
+            Map<String, Object> response = analysisService.analyzeClonedRepository(projectId, method);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

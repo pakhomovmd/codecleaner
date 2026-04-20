@@ -120,6 +120,79 @@ public class AnalysisService {
         analysisSessionRepository.deleteAll(sessions);
         System.out.println("🗑️ All analysis sessions deleted for project ID: " + projectId + " (Count: " + sessions.size() + ")");
     }
+    
+    public Map<String, Object> analyzeClonedRepository(Long projectId, AnalysisMethod method) throws IOException {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        
+        if (project.getClonedZipPath() == null || project.getClonedZipPath().isEmpty()) {
+            throw new RuntimeException("No cloned repository found for this project");
+        }
+        
+        // Загружаем клонированный ZIP файл
+        java.nio.file.Path zipPath = java.nio.file.Paths.get(project.getClonedZipPath());
+        if (!java.nio.file.Files.exists(zipPath)) {
+            throw new RuntimeException("Cloned repository file not found: " + project.getClonedZipPath());
+        }
+        
+        // Создаем MultipartFile из существующего файла
+        byte[] zipBytes = java.nio.file.Files.readAllBytes(zipPath);
+        MultipartFile zipFile = new InMemoryMultipartFile(zipPath.getFileName().toString(), zipBytes);
+        
+        // Запускаем анализ
+        return uploadAndAnalyze(projectId, zipFile, method);
+    }
+    
+    // Вспомогательный класс для создания MultipartFile из byte[]
+    private static class InMemoryMultipartFile implements MultipartFile {
+        private final String name;
+        private final byte[] content;
+
+        public InMemoryMultipartFile(String name, byte[] content) {
+            this.name = name;
+            this.content = content;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getOriginalFilename() {
+            return name;
+        }
+
+        @Override
+        public String getContentType() {
+            return "application/zip";
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return content.length == 0;
+        }
+
+        @Override
+        public long getSize() {
+            return content.length;
+        }
+
+        @Override
+        public byte[] getBytes() {
+            return content;
+        }
+
+        @Override
+        public java.io.InputStream getInputStream() {
+            return new java.io.ByteArrayInputStream(content);
+        }
+
+        @Override
+        public void transferTo(java.io.File dest) throws IOException {
+            java.nio.file.Files.write(dest.toPath(), content);
+        }
+    }
 
     private AnalysisSessionDto convertToDto(AnalysisSession session) {
         return new AnalysisSessionDto(

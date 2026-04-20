@@ -22,9 +22,10 @@
       <h2 class="text-xl font-semibold text-gray-800 mb-4">➕ Новый проект</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <input [(ngModel)]="newProject.name" placeholder="Название проекта (мин. 3 символа)" class="px-4 py-2 border border-gray-300 rounded-lg">
-        <input [(ngModel)]="newProject.repoUrl" placeholder="github.com/user/repo" class="px-4 py-2 border border-gray-300 rounded-lg">
+        <input [(ngModel)]="newProject.repoUrl" placeholder="https://github.com/user/repo (необязательно)" class="px-4 py-2 border border-gray-300 rounded-lg">
         <input [(ngModel)]="newProject.description" placeholder="Описание (необязательно)" class="px-4 py-2 border border-gray-300 rounded-lg">
       </div>
+      <p class="text-sm text-gray-500 mt-2">💡 Если укажете GitHub URL, код будет автоматически клонирован</p>
       <button (click)="createProject()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Добавить проект</button>
     </div>
 

@@ -19,11 +19,14 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final GitHubService gitHubService;
 
     public ProjectServiceImpl(ProjectRepository projectRepository,
-                              UserRepository userRepository) {
+                              UserRepository userRepository,
+                              GitHubService gitHubService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.gitHubService = gitHubService;
     }
 
     @Override
@@ -39,8 +42,45 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCreatedAt(LocalDateTime.now());
         project.setIsArchived(false);
 
+        // Если указан repoUrl, клонируем репозиторий
+        if (request.getRepoUrl() != null && !request.getRepoUrl().trim().isEmpty()) {
+            try {
+                System.out.println("🔄 Cloning repository from: " + request.getRepoUrl());
+                var zipFile = gitHubService.cloneAndZipRepository(request.getRepoUrl());
+                
+                // Сохраняем ZIP в постоянное хранилище
+                String zipPath = saveClonedZip(zipFile, project.getName());
+                project.setClonedZipPath(zipPath);
+                
+                System.out.println("✅ Repository cloned and saved to: " + zipPath);
+            } catch (Exception e) {
+                System.err.println("❌ Failed to clone repository: " + e.getMessage());
+                throw new RuntimeException("Failed to clone repository: " + e.getMessage(), e);
+            }
+        }
+
         Project savedProject = projectRepository.save(project);
         return convertToDto(savedProject);
+    }
+    
+    /**
+     * Сохраняет клонированный ZIP в постоянное хранилище
+     */
+    private String saveClonedZip(org.springframework.web.multipart.MultipartFile zipFile, String projectName) throws java.io.IOException {
+        // Создаем директорию для хранения клонированных репозиториев
+        java.nio.file.Path storageDir = java.nio.file.Paths.get("cloned-repos");
+        if (!java.nio.file.Files.exists(storageDir)) {
+            java.nio.file.Files.createDirectories(storageDir);
+        }
+        
+        // Генерируем уникальное имя файла
+        String fileName = projectName.replaceAll("[^a-zA-Z0-9-_]", "_") + "_" + System.currentTimeMillis() + ".zip";
+        java.nio.file.Path filePath = storageDir.resolve(fileName);
+        
+        // Сохраняем файл
+        zipFile.transferTo(filePath.toFile());
+        
+        return filePath.toString();
     }
 
     @Override
@@ -84,7 +124,8 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getCreatedAt() != null ? project.getCreatedAt().toString() : null,
                 project.getIsArchived(),
                 project.getOwner().getId(),
-                project.getOwner().getEmail()
+                project.getOwner().getEmail(),
+                project.getClonedZipPath()
         );
     }
 }

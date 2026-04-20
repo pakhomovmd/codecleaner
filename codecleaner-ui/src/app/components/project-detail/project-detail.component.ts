@@ -21,6 +21,7 @@ export class ProjectDetailComponent implements OnInit {
   selectedFile: File | null = null;
   uploadStatus = '';
   uploading = false;
+  analyzingCloned = false;
   
   // Методы анализа
   analysisMethods: AnalysisMethod[] = [];
@@ -158,5 +159,31 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     }
+  }
+  
+  analyzeClonedRepo(): void {
+    if (!this.project?.clonedZipPath) {
+      alert('Клонированный репозиторий не найден');
+      return;
+    }
+    
+    this.analyzingCloned = true;
+    this.uploadStatus = 'Анализ клонированного репозитория...';
+    
+    this.analysisService.analyzeClonedRepository(this.projectId!, this.selectedMethod).subscribe({
+      next: (response) => {
+        this.uploadStatus = 'Анализ завершён!';
+        this.analyzingCloned = false;
+        alert('Анализ клонированного репозитория завершён!');
+        // Обновляем список анализов через 2 секунды
+        setTimeout(() => this.loadAnalyses(), 2000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.uploadStatus = 'Ошибка: ' + (err.error?.error || err.message);
+        this.analyzingCloned = false;
+        alert('Ошибка при анализе: ' + (err.error?.error || err.message));
+      }
+    });
   }
 }

@@ -10,8 +10,7 @@ public class ProjectRequest {
     @Size(min = 3, max = 100, message = "Project name must be between 3 and 100 characters")
     private String name;
     
-    @NotBlank(message = "Repository URL is required")
-    @Pattern(regexp = "https?://.*", message = "Repository URL must be a valid HTTP/HTTPS URL")
+    @Pattern(regexp = "^$|https?://github\\.com/.*", message = "Repository URL must be a valid GitHub URL (https://github.com/...)")
     private String repoUrl;
     
     @Size(max = 500, message = "Description must not exceed 500 characters")

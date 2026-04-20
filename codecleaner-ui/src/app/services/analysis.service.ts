@@ -47,4 +47,8 @@ export class AnalysisService {
   deleteAllAnalysesByProject(projectId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/project/${projectId}/all`);
   }
+  
+  analyzeClonedRepository(projectId: number, method: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/analyze-cloned/${projectId}?method=${method}`, {});
+  }
 }

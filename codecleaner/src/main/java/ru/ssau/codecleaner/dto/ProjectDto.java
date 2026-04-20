@@ -23,6 +23,7 @@ public class ProjectDto {
     private Boolean isArchived;
     private Long ownerId;
     private String ownerEmail;
+    private String clonedZipPath;  // Путь к клонированному архиву
 
     // Конструкторы
     public ProjectDto() {}
@@ -37,6 +38,19 @@ public class ProjectDto {
         this.isArchived = isArchived;
         this.ownerId = ownerId;
         this.ownerEmail = ownerEmail;
+    }
+    
+    public ProjectDto(Long id, String name, String repoUrl, String description, 
+                      String createdAt, Boolean isArchived, Long ownerId, String ownerEmail, String clonedZipPath) {
+        this.id = id;
+        this.name = name;
+        this.repoUrl = repoUrl;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.isArchived = isArchived;
+        this.ownerId = ownerId;
+        this.ownerEmail = ownerEmail;
+        this.clonedZipPath = clonedZipPath;
     }
 
     // Геттеры и сеттеры
@@ -102,5 +116,13 @@ public class ProjectDto {
 
     public void setOwnerEmail(String ownerEmail) {
         this.ownerEmail = ownerEmail;
+    }
+    
+    public String getClonedZipPath() {
+        return clonedZipPath;
+    }
+    
+    public void setClonedZipPath(String clonedZipPath) {
+        this.clonedZipPath = clonedZipPath;
     }
 }
