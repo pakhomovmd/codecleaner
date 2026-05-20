@@ -35,7 +35,7 @@
         <h3 class="text-lg font-semibold text-gray-800 mb-4">📤 Анализ проекта</h3>
         
         <!-- Клонированный репозиторий -->
-        <div *ngIf="project.clonedZipPath">
+        <div *ngIf="project.clonedZipPath" class="mb-8">
           <div class="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
             <div class="flex items-center justify-between mb-3">
               <div>
@@ -58,15 +58,21 @@
             </div>
             
             <button (click)="analyzeClonedRepo()" 
-                    [disabled]="analyzingCloned"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:bg-gray-400">
+                    [disabled]="analyzingCloned || analyzingAll"
+                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:bg-gray-400 mb-2">
               {{ analyzingCloned ? 'Анализируется...' : '🚀 Начать анализ' }}
+            </button>
+
+            <button (click)="analyzeAll()" 
+                    [disabled]="analyzingCloned || analyzingAll"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg disabled:bg-gray-400">
+              {{ analyzingAll ? 'Выполняется комплексный анализ...' : '🧪 Запустить все методы сразу' }}
             </button>
           </div>
         </div>
         
-        <!-- Загрузка ZIP (только если нет клонированного репо) -->
-        <div *ngIf="!project.clonedZipPath">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">📤 Загрузить код вручную</h3>
           <p class="text-sm text-gray-500 mb-4">Загрузите ZIP-архив с вашим веб-проектом (CSS, JS, HTML файлы)</p>
           
           <!-- Выбор метода анализа -->
@@ -93,8 +99,14 @@
           
           <button (click)="uploadAndAnalyze()" 
                   [disabled]="!selectedFile || uploading"
-                  class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400">
-            {{ uploading ? 'Анализируется...' : 'Загрузить и анализировать' }}
+                  class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400 mr-2">
+            {{ uploading && !uploadStatus.includes('комплексного') ? 'Анализируется...' : 'Загрузить и анализировать' }}
+          </button>
+
+          <button (click)="uploadAndAnalyzeAll()" 
+                  [disabled]="!selectedFile || uploading"
+                  class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg disabled:bg-gray-400">
+            {{ uploading && uploadStatus.includes('комплексного') ? 'Выполняется комплексный анализ...' : '🧪 Запустить все методы сразу' }}
           </button>
           
           <p *ngIf="uploadStatus" class="mt-2 text-sm" [class.text-green-600]="uploadStatus.includes('завершён')" [class.text-red-600]="uploadStatus.includes('Ошибка')">

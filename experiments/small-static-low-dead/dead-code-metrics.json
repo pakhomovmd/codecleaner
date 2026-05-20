@@ -1,0 +1,29 @@
+{
+  "projectName": "small-static-low-dead",
+  "projectType": "Small Static Website",
+  "deadCodePercentage": "10-15%",
+  "totalFiles": 3,
+  "deadCodeLocations": [
+    {
+      "file": "script.js",
+      "lines": "64-72",
+      "type": "function and variable",
+      "description": "Неиспользуемая функция oldCalculateDiscount и переменная DEPRECATED_API_URL"
+    },
+    {
+      "file": "styles.css",
+      "lines": "190-202",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого баннера и анимации"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 289,
+    "deadCodeLines": 21,
+    "deadCodePercentageActual": 7.3,
+    "htmlFiles": 1,
+    "cssFiles": 1,
+    "jsFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

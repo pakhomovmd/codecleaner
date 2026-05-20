@@ -56,10 +56,19 @@ public class AnalysisService {
         analysisSessionRepository.save(session);
 
         try {
-            codeAnalysisService.analyzeProject(file, session, method);
+            // analyzeProject обновляет session и устанавливает метрики
+            session = codeAnalysisService.analyzeProject(file, session, method);
 
             session.setEndTime(LocalDateTime.now());
             session.setStatus(AnalysisStatus.COMPLETED);
+            
+            // Вычисляем время анализа в мс
+            if (session.getStartTime() != null && session.getEndTime() != null) {
+                long duration = java.time.Duration.between(session.getStartTime(), session.getEndTime()).toMillis();
+                session.setAnalysisTimeMs(duration);
+            }
+            
+            // Сохраняем сессию с обновлёнными метриками
             analysisSessionRepository.save(session);
 
             Map<String, Object> response = new HashMap<>();
@@ -96,6 +105,11 @@ public class AnalysisService {
         response.put("startTime", session.getStartTime());
         response.put("endTime", session.getEndTime());
         response.put("analysisMethod", session.getAnalysisMethod() != null ? session.getAnalysisMethod().name() : "SIMPLE_TEXT_SEARCH");
+        response.put("precision", session.getPrecision());
+        response.put("recall", session.getRecall());
+        response.put("f1Score", session.getF1Score());
+        response.put("falsePositiveRate", session.getFalsePositiveRate());
+        response.put("analysisTimeMs", session.getAnalysisTimeMs());
         response.put("fileReports", reports);
 
         return response;
@@ -194,6 +208,27 @@ public class AnalysisService {
         }
     }
 
+    public List<Map<String, Object>> analyzeAllMethods(Long projectId) throws IOException {
+        List<Map<String, Object>> results = new java.util.ArrayList<>();
+        for (AnalysisMethod method : AnalysisMethod.values()) {
+            results.add(analyzeClonedRepository(projectId, method));
+        }
+        return results;
+    }
+
+    public List<Map<String, Object>> uploadAndAnalyzeAll(Long projectId, MultipartFile file) throws IOException {
+        List<Map<String, Object>> results = new java.util.ArrayList<>();
+        // We need to read the file into bytes once to reuse it for multiple analyses
+        byte[] fileBytes = file.getBytes();
+        String fileName = file.getOriginalFilename();
+        
+        for (AnalysisMethod method : AnalysisMethod.values()) {
+            MultipartFile reusableFile = new InMemoryMultipartFile(fileName, fileBytes);
+            results.add(uploadAndAnalyze(projectId, reusableFile, method));
+        }
+        return results;
+    }
+
     private AnalysisSessionDto convertToDto(AnalysisSession session) {
         return new AnalysisSessionDto(
                 session.getId(),
@@ -204,7 +239,12 @@ public class AnalysisService {
                 session.getStatus().name(),
                 session.getCommitHash(),
                 session.getHealthScore(),
-                session.getAnalysisMethod() != null ? session.getAnalysisMethod().name() : "SIMPLE_TEXT_SEARCH"
+                session.getAnalysisMethod() != null ? session.getAnalysisMethod().name() : "SIMPLE_TEXT_SEARCH",
+                session.getPrecision(),
+                session.getRecall(),
+                session.getF1Score(),
+                session.getFalsePositiveRate(),
+                session.getAnalysisTimeMs()
         );
     }
 }

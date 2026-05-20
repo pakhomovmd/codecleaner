@@ -1,0 +1,29 @@
+{
+  "projectName": "small-static-medium-dead",
+  "projectType": "Small Static Website",
+  "deadCodePercentage": "30-40%",
+  "totalFiles": 3,
+  "deadCodeLocations": [
+    {
+      "file": "script.js",
+      "lines": "64-108",
+      "type": "functions and variables",
+      "description": "Неиспользуемые функции для скидок, валидации, корзины, аналитики и переменные"
+    },
+    {
+      "file": "styles.css",
+      "lines": "190-279",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого дизайна, анимаций, модальных окон и карточек"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 387,
+    "deadCodeLines": 135,
+    "deadCodePercentageActual": 34.9,
+    "htmlFiles": 1,
+    "cssFiles": 1,
+    "jsFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

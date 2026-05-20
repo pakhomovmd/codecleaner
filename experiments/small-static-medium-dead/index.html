@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кофейня "Аромат" - Лучший кофе в городе</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">☕ Аромат</div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Главная</a></li>
+                <li><a href="#menu" class="nav-link">Меню</a></li>
+                <li><a href="#about" class="nav-link">О нас</a></li>
+                <li><a href="#contact" class="nav-link">Контакты</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">☰</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Добро пожаловать в "Аромат"</h1>
+                <p class="hero-subtitle">Лучший кофе в городе с 2010 года</p>
+                <button class="btn btn-primary" id="orderBtn">Заказать сейчас</button>
+            </div>
+        </section>
+
+        <section id="menu" class="menu-section">
+            <h2 class="section-title">Наше меню</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <h3>Эспрессо</h3>
+                    <p class="price">150₽</p>
+                </div>
+                <div class="menu-item">
+                    <h3>Капучино</h3>
+                    <p class="price">200₽</p>
+                </div>
+                <div class="menu-item">
+                    <h3>Латте</h3>
+                    <p class="price">220₽</p>
+                </div>
+                <div class="menu-item">
+                    <h3>Американо</h3>
+                    <p class="price">180₽</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <h2 class="section-title">О нас</h2>
+            <p class="about-text">Мы обжариваем зёрна каждый день и готовим кофе с любовью.</p>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <h2 class="section-title">Контакты</h2>
+            <form class="contact-form" id="contactForm">
+                <input type="text" class="form-input" placeholder="Ваше имя" required>
+                <input type="email" class="form-input" placeholder="Email" required>
+                <textarea class="form-textarea" placeholder="Сообщение" required></textarea>
+                <button type="submit" class="btn btn-secondary">Отправить</button>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Кофейня "Аромат". Все права защищены.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

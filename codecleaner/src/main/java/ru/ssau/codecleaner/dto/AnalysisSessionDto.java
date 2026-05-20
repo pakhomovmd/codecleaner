@@ -10,12 +10,19 @@ public class AnalysisSessionDto {
     private String commitHash;
     private Double healthScore;
     private String analysisMethod;
+    private Double precision;
+    private Double recall;
+    private Double f1Score;
+    private Double falsePositiveRate;
+    private Long analysisTimeMs;
 
     // Конструкторы
     public AnalysisSessionDto() {}
 
     public AnalysisSessionDto(Long id, Long projectId, String projectName, String startTime, 
-                              String endTime, String status, String commitHash, Double healthScore, String analysisMethod) {
+                              String endTime, String status, String commitHash, Double healthScore, 
+                              String analysisMethod, Double precision, Double recall, Double f1Score, 
+                              Double falsePositiveRate, Long analysisTimeMs) {
         this.id = id;
         this.projectId = projectId;
         this.projectName = projectName;
@@ -25,6 +32,11 @@ public class AnalysisSessionDto {
         this.commitHash = commitHash;
         this.healthScore = healthScore;
         this.analysisMethod = analysisMethod;
+        this.precision = precision;
+        this.recall = recall;
+        this.f1Score = f1Score;
+        this.falsePositiveRate = falsePositiveRate;
+        this.analysisTimeMs = analysisTimeMs;
     }
 
     // Геттеры и сеттеры
@@ -98,5 +110,45 @@ public class AnalysisSessionDto {
 
     public void setAnalysisMethod(String analysisMethod) {
         this.analysisMethod = analysisMethod;
+    }
+
+    public Double getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(Double precision) {
+        this.precision = precision;
+    }
+
+    public Double getRecall() {
+        return recall;
+    }
+
+    public void setRecall(Double recall) {
+        this.recall = recall;
+    }
+
+    public Double getF1Score() {
+        return f1Score;
+    }
+
+    public void setF1Score(Double f1Score) {
+        this.f1Score = f1Score;
+    }
+
+    public Double getFalsePositiveRate() {
+        return falsePositiveRate;
+    }
+
+    public void setFalsePositiveRate(Double falsePositiveRate) {
+        this.falsePositiveRate = falsePositiveRate;
+    }
+
+    public Long getAnalysisTimeMs() {
+        return analysisTimeMs;
+    }
+
+    public void setAnalysisTimeMs(Long analysisTimeMs) {
+        this.analysisTimeMs = analysisTimeMs;
     }
 }

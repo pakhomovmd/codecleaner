@@ -51,4 +51,14 @@ export class AnalysisService {
   analyzeClonedRepository(projectId: number, method: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/analyze-cloned/${projectId}?method=${method}`, {});
   }
+
+  analyzeAllMethods(projectId: number): Observable<any[]> {
+    return this.http.post<any[]>(`${this.apiUrl}/analyze-all/${projectId}`, {});
+  }
+
+  uploadAndAnalyzeAll(projectId: number, file: File): Observable<any[]> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any[]>(`${this.apiUrl}/upload-all/${projectId}`, formData);
+  }
 }

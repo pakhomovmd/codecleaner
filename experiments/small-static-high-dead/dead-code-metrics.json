@@ -1,0 +1,29 @@
+{
+  "projectName": "small-static-high-dead",
+  "projectType": "Small Static Website",
+  "deadCodePercentage": "60-70%",
+  "totalFiles": 3,
+  "deadCodeLocations": [
+    {
+      "file": "script.js",
+      "lines": "64-293",
+      "type": "functions, classes and variables",
+      "description": "Множество неиспользуемых функций, классов и переменных для различных функций"
+    },
+    {
+      "file": "styles.css",
+      "lines": "190-579",
+      "type": "css",
+      "description": "Обширные неиспользуемые стили для различных компонентов и утилит"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 655,
+    "deadCodeLines": 420,
+    "deadCodePercentageActual": 64.1,
+    "htmlFiles": 1,
+    "cssFiles": 1,
+    "jsFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

@@ -1,0 +1,80 @@
+{
+  "projectName": "large-modular-low-dead",
+  "projectType": "Large Modular Application (React)",
+  "deadCodePercentage": "10-15%",
+  "architecture": "Feature-based modular architecture",
+  "totalFiles": 25,
+  "deadCodeLocations": [
+    {
+      "file": "src/App.jsx",
+      "lines": "30-34",
+      "type": "function",
+      "description": "Неиспользуемая функция getOldRoutes"
+    },
+    {
+      "file": "src/shared/contexts/AuthContext.jsx",
+      "lines": "28-32",
+      "type": "function",
+      "description": "Неиспользуемая функция oldAuthCheck"
+    },
+    {
+      "file": "src/shared/components/Header/Header.jsx",
+      "lines": "36-40",
+      "type": "component",
+      "description": "Неиспользуемый компонент OldMenu"
+    },
+    {
+      "file": "src/features/courses/components/CourseCard.jsx",
+      "lines": "28-32",
+      "type": "component",
+      "description": "Неиспользуемый компонент OldCourseCard"
+    },
+    {
+      "file": "src/features/courses/data/coursesData.js",
+      "lines": "50-54",
+      "type": "data",
+      "description": "Неиспользуемые данные oldCourses"
+    },
+    {
+      "file": "src/features/home/pages/HomePage.jsx",
+      "lines": "38-42",
+      "type": "component",
+      "description": "Неиспользуемый компонент OldBanner"
+    },
+    {
+      "file": "src/App.css",
+      "lines": "5-9",
+      "type": "css",
+      "description": "Неиспользуемые стили old-container"
+    },
+    {
+      "file": "src/shared/components/Header/Header.css",
+      "lines": "48-51",
+      "type": "css",
+      "description": "Неиспользуемые стили old-menu"
+    },
+    {
+      "file": "src/features/home/pages/HomePage.css",
+      "lines": "73-77",
+      "type": "css",
+      "description": "Неиспользуемые стили old-banner"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 1050,
+    "deadCodeLines": 115,
+    "deadCodePercentageActual": 11.0,
+    "jsxFiles": 14,
+    "cssFiles": 10,
+    "otherFiles": 1
+  },
+  "modules": [
+    "features/home",
+    "features/courses",
+    "features/profile",
+    "features/dashboard",
+    "shared/components",
+    "shared/contexts"
+  ],
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик. Проект использует feature-based модульную архитектуру с разделением на фичи и общие компоненты."
+}

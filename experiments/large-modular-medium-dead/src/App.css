@@ -1,0 +1,31 @@
+.app {
+  min-height: 100vh;
+}
+
+/* DEAD CODE START */
+.old-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.old-sidebar {
+  width: 200px;
+  float: left;
+}
+
+.notification-banner {
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.notification-banner.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.notification-banner.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+/* DEAD CODE END */

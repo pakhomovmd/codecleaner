@@ -1,0 +1,49 @@
+.dashboard-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.dashboard-card h3 {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.dashboard-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.dashboard-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h2 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.dashboard-section p {
+  color: #666;
+}

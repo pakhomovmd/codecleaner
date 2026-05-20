@@ -1,0 +1,65 @@
+{
+  "projectName": "medium-spa-low-dead",
+  "projectType": "Medium SPA (React)",
+  "deadCodePercentage": "10-15%",
+  "totalFiles": 18,
+  "deadCodeLocations": [
+    {
+      "file": "src/App.jsx",
+      "lines": "28-33",
+      "type": "function",
+      "description": "Неиспользуемая функция oldRouteConfig"
+    },
+    {
+      "file": "src/components/Header.jsx",
+      "lines": "30-37",
+      "type": "component",
+      "description": "Неиспользуемый компонент OldNavigation"
+    },
+    {
+      "file": "src/context/CartContext.jsx",
+      "lines": "60-65",
+      "type": "function",
+      "description": "Неиспользуемая функция oldCalculateDiscount"
+    },
+    {
+      "file": "src/data/products.js",
+      "lines": "68-76",
+      "type": "data",
+      "description": "Неиспользуемые данные oldCategories и deprecatedProducts"
+    },
+    {
+      "file": "src/pages/HomePage.jsx",
+      "lines": "28-35",
+      "type": "component",
+      "description": "Неиспользуемый компонент OldBanner"
+    },
+    {
+      "file": "src/App.css",
+      "lines": "14-22",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого layout"
+    },
+    {
+      "file": "src/components/Header.css",
+      "lines": "56-63",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого header"
+    },
+    {
+      "file": "src/pages/HomePage.css",
+      "lines": "48-54",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого баннера"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 850,
+    "deadCodeLines": 95,
+    "deadCodePercentageActual": 11.2,
+    "jsxFiles": 10,
+    "cssFiles": 7,
+    "otherFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

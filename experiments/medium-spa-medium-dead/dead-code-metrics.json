@@ -1,0 +1,65 @@
+{
+  "projectName": "medium-spa-medium-dead",
+  "projectType": "Medium SPA (React)",
+  "deadCodePercentage": "30-40%",
+  "totalFiles": 18,
+  "deadCodeLocations": [
+    {
+      "file": "src/App.jsx",
+      "lines": "34-67",
+      "type": "functions and components",
+      "description": "Неиспользуемые функции роутинга, компоненты и хуки"
+    },
+    {
+      "file": "src/components/Header.jsx",
+      "lines": "31-75",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты навигации, поиска и меню пользователя"
+    },
+    {
+      "file": "src/context/CartContext.jsx",
+      "lines": "69-119",
+      "type": "functions and hooks",
+      "description": "Неиспользуемые функции для скидок, доставки, валидации и хуки"
+    },
+    {
+      "file": "src/data/products.js",
+      "lines": "84-137",
+      "type": "data and functions",
+      "description": "Неиспользуемые данные и функции для брендов, отзывов, промокодов"
+    },
+    {
+      "file": "src/pages/HomePage.jsx",
+      "lines": "33-97",
+      "type": "components",
+      "description": "Неиспользуемые компоненты для баннера, слайдера, отзывов и категорий"
+    },
+    {
+      "file": "src/App.css",
+      "lines": "15-56",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого layout и уведомлений"
+    },
+    {
+      "file": "src/components/Header.css",
+      "lines": "66-127",
+      "type": "css",
+      "description": "Неиспользуемые стили для поиска, меню пользователя и мобильного меню"
+    },
+    {
+      "file": "src/pages/HomePage.css",
+      "lines": "54-141",
+      "type": "css",
+      "description": "Неиспользуемые стили для слайдера, отзывов и категорий"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 1150,
+    "deadCodeLines": 395,
+    "deadCodePercentageActual": 34.3,
+    "jsxFiles": 10,
+    "cssFiles": 7,
+    "otherFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

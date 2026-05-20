@@ -31,6 +31,13 @@ public class AnalysisSession {
     private String commitHash;
     private Double healthScore;
 
+    // Метрики качества анализа
+    private Double precision;        // TP / (TP + FP)
+    private Double recall;           // TP / (TP + FN)
+    private Double f1Score;          // 2 * (precision * recall) / (precision + recall)
+    private Double falsePositiveRate; // FP / (FP + TN)
+    private Long analysisTimeMs;     // Время анализа в миллисекундах
+
     @JsonIgnore
     @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FileReport> fileReports = new ArrayList<>();
@@ -71,4 +78,19 @@ public class AnalysisSession {
 
     public List<FileReport> getFileReports() { return fileReports; }
     public void setFileReports(List<FileReport> fileReports) { this.fileReports = fileReports; }
+
+    public Double getPrecision() { return precision; }
+    public void setPrecision(Double precision) { this.precision = precision; }
+
+    public Double getRecall() { return recall; }
+    public void setRecall(Double recall) { this.recall = recall; }
+
+    public Double getF1Score() { return f1Score; }
+    public void setF1Score(Double f1Score) { this.f1Score = f1Score; }
+
+    public Double getFalsePositiveRate() { return falsePositiveRate; }
+    public void setFalsePositiveRate(Double falsePositiveRate) { this.falsePositiveRate = falsePositiveRate; }
+
+    public Long getAnalysisTimeMs() { return analysisTimeMs; }
+    public void setAnalysisTimeMs(Long analysisTimeMs) { this.analysisTimeMs = analysisTimeMs; }
 }

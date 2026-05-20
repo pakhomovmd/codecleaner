@@ -102,4 +102,26 @@ public class AnalysisController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/analyze-all/{projectId}")
+    public ResponseEntity<?> analyzeAllMethods(@PathVariable Long projectId) {
+        try {
+            List<Map<String, Object>> responses = analysisService.analyzeAllMethods(projectId);
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/upload-all/{projectId}")
+    public ResponseEntity<?> uploadAndAnalyzeAll(
+            @PathVariable Long projectId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            List<Map<String, Object>> responses = analysisService.uploadAndAnalyzeAll(projectId, file);
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
 }

@@ -22,6 +22,7 @@ export class ProjectDetailComponent implements OnInit {
   uploadStatus = '';
   uploading = false;
   analyzingCloned = false;
+  analyzingAll = false;
   
   // Методы анализа
   analysisMethods: AnalysisMethod[] = [];
@@ -183,6 +184,59 @@ export class ProjectDetailComponent implements OnInit {
         this.uploadStatus = 'Ошибка: ' + (err.error?.error || err.message);
         this.analyzingCloned = false;
         alert('Ошибка при анализе: ' + (err.error?.error || err.message));
+      }
+    });
+  }
+
+  uploadAndAnalyzeAll(): void {
+    if (!this.selectedFile) {
+      this.uploadStatus = 'Выберите ZIP-архив с проектом';
+      return;
+    }
+    
+    this.uploading = true;
+    this.uploadStatus = 'Запуск комплексного анализа (все методы)...';
+    
+    this.analysisService.uploadAndAnalyzeAll(this.projectId!, this.selectedFile).subscribe({
+      next: (responses) => {
+        this.uploadStatus = 'Комплексный анализ завершён!';
+        this.uploading = false;
+        this.selectedFile = null;
+        alert('Все три метода анализа успешно выполнены для загруженного файла!');
+        // Обновляем список анализов через 2 секунды
+        setTimeout(() => this.loadAnalyses(), 2000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.uploadStatus = 'Ошибка: ' + (err.error?.error || err.message);
+        this.uploading = false;
+        alert('Ошибка при комплексном анализе: ' + (err.error?.error || err.message));
+      }
+    });
+  }
+
+  analyzeAll(): void {
+    if (!this.project?.clonedZipPath) {
+      alert('Клонированный репозиторий не найден');
+      return;
+    }
+    
+    this.analyzingAll = true;
+    this.uploadStatus = 'Запуск комплексного анализа (все методы)...';
+    
+    this.analysisService.analyzeAllMethods(this.projectId!).subscribe({
+      next: (responses) => {
+        this.uploadStatus = 'Комплексный анализ завершён!';
+        this.analyzingAll = false;
+        alert('Все три метода анализа успешно выполнены!');
+        // Обновляем список анализов через 2 секунды
+        setTimeout(() => this.loadAnalyses(), 2000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.uploadStatus = 'Ошибка: ' + (err.error?.error || err.message);
+        this.analyzingAll = false;
+        alert('Ошибка при комплексном анализе: ' + (err.error?.error || err.message));
       }
     });
   }

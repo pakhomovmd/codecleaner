@@ -1,0 +1,113 @@
+{
+  "projectName": "medium-spa-high-dead",
+  "projectType": "Medium SPA (React)",
+  "deadCodePercentage": "60-70%",
+  "totalFiles": 18,
+  "deadCodeLocations": [
+    {
+      "file": "src/App.jsx",
+      "lines": "34-177",
+      "type": "functions, components and hooks",
+      "description": "Множество неиспользуемых компонентов, хуков и утилит"
+    },
+    {
+      "file": "src/components/Header.jsx",
+      "lines": "31-75",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты навигации, поиска и меню"
+    },
+    {
+      "file": "src/components/ProductCard.jsx",
+      "lines": "35-87",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты для карточек, рейтинга и сравнения"
+    },
+    {
+      "file": "src/context/CartContext.jsx",
+      "lines": "69-119",
+      "type": "functions and hooks",
+      "description": "Неиспользуемые функции для скидок, доставки и хуки"
+    },
+    {
+      "file": "src/data/products.js",
+      "lines": "84-137",
+      "type": "data and functions",
+      "description": "Неиспользуемые данные и функции для брендов, отзывов"
+    },
+    {
+      "file": "src/pages/HomePage.jsx",
+      "lines": "33-97",
+      "type": "components",
+      "description": "Неиспользуемые компоненты для баннера, слайдера, отзывов"
+    },
+    {
+      "file": "src/pages/ProductsPage.jsx",
+      "lines": "40-141",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты для сортировки, фильтров, пагинации"
+    },
+    {
+      "file": "src/pages/CartPage.jsx",
+      "lines": "60-165",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты для промокодов, доставки, оплаты"
+    },
+    {
+      "file": "src/pages/ProductDetailPage.jsx",
+      "lines": "52-161",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты для галереи, отзывов, характеристик"
+    },
+    {
+      "file": "src/App.css",
+      "lines": "15-56",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого layout"
+    },
+    {
+      "file": "src/components/Header.css",
+      "lines": "66-127",
+      "type": "css",
+      "description": "Неиспользуемые стили для поиска и меню"
+    },
+    {
+      "file": "src/components/ProductCard.css",
+      "lines": "65-162",
+      "type": "css",
+      "description": "Неиспользуемые стили для списка, рейтинга, бейджей"
+    },
+    {
+      "file": "src/pages/HomePage.css",
+      "lines": "54-141",
+      "type": "css",
+      "description": "Неиспользуемые стили для слайдера и отзывов"
+    },
+    {
+      "file": "src/pages/ProductsPage.css",
+      "lines": "40-177",
+      "type": "css",
+      "description": "Неиспользуемые стили для фильтров и пагинации"
+    },
+    {
+      "file": "src/pages/CartPage.css",
+      "lines": "182-348",
+      "type": "css",
+      "description": "Неиспользуемые стили для промокодов, доставки, рекомендаций"
+    },
+    {
+      "file": "src/pages/ProductDetailPage.css",
+      "lines": "96-280",
+      "type": "css",
+      "description": "Неиспользуемые стили для галереи, отзывов, вкладок"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 1850,
+    "deadCodeLines": 1215,
+    "deadCodePercentageActual": 65.7,
+    "jsxFiles": 10,
+    "cssFiles": 7,
+    "otherFiles": 1
+  },
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик"
+}

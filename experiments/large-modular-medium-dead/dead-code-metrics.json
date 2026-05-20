@@ -1,0 +1,82 @@
+{
+  "projectName": "large-modular-medium-dead",
+  "projectType": "Large Modular Application (React)",
+  "deadCodePercentage": "30-40%",
+  "architecture": "Feature-based modular architecture",
+  "totalFiles": 27,
+  "deadCodeLocations": [
+    {
+      "file": "src/App.jsx",
+      "lines": "31-59",
+      "type": "functions and hooks",
+      "description": "Неиспользуемые функции роутинга, валидации и хуки"
+    },
+    {
+      "file": "src/shared/contexts/AuthContext.jsx",
+      "lines": "30-60",
+      "type": "functions and hooks",
+      "description": "Неиспользуемые функции аутентификации и хуки"
+    },
+    {
+      "file": "src/features/courses/data/coursesData.js",
+      "lines": "59-99",
+      "type": "data and functions",
+      "description": "Неиспользуемые данные и функции для курсов"
+    },
+    {
+      "file": "src/features/courses/components/CourseCard.jsx",
+      "lines": "23-50",
+      "type": "components and functions",
+      "description": "Неиспользуемые компоненты и функции"
+    },
+    {
+      "file": "src/features/home/pages/HomePage.jsx",
+      "lines": "38-77",
+      "type": "components",
+      "description": "Неиспользуемые компоненты для баннера, отзывов и статистики"
+    },
+    {
+      "file": "src/shared/utils/api.js",
+      "lines": "18-28",
+      "type": "functions",
+      "description": "Неиспользуемые функции для API"
+    },
+    {
+      "file": "src/shared/utils/formatters.js",
+      "lines": "13-28",
+      "type": "functions",
+      "description": "Неиспользуемые функции форматирования"
+    },
+    {
+      "file": "src/App.css",
+      "lines": "5-29",
+      "type": "css",
+      "description": "Неиспользуемые стили для старого layout"
+    },
+    {
+      "file": "src/features/home/pages/HomePage.css",
+      "lines": "76-129",
+      "type": "css",
+      "description": "Неиспользуемые стили для отзывов и статистики"
+    }
+  ],
+  "statistics": {
+    "totalLinesOfCode": 1320,
+    "deadCodeLines": 445,
+    "deadCodePercentageActual": 33.7,
+    "jsxFiles": 14,
+    "cssFiles": 10,
+    "jsFiles": 2,
+    "otherFiles": 1
+  },
+  "modules": [
+    "features/home",
+    "features/courses",
+    "features/profile",
+    "features/dashboard",
+    "shared/components",
+    "shared/contexts",
+    "shared/utils"
+  ],
+  "notes": "Все мёртвый код помечен комментариями DEAD CODE START/END для точного подсчета метрик. Проект использует feature-based модульную архитектуру с разделением на фичи и общие компоненты."
+}

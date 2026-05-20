@@ -65,4 +65,18 @@ export class AnalysisDetailComponent implements OnInit {
       this.router.navigate(['/projects']);
     }
   }
+
+  formatTime(ms: number | null | undefined): string {
+    if (!ms) return '0s';
+    
+    if (ms < 1000) {
+      return `${ms}ms`;
+    } else if (ms < 60000) {
+      return `${(ms / 1000).toFixed(1)}s`;
+    } else {
+      const minutes = Math.floor(ms / 60000);
+      const seconds = Math.floor((ms % 60000) / 1000);
+      return `${minutes}m ${seconds}s`;
+    }
+  }
 }
