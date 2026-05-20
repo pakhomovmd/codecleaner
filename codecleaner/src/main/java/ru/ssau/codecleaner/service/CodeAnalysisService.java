@@ -32,15 +32,26 @@ public class CodeAnalysisService {
         Path tempDir = Files.createTempDirectory("codeanalysis_");
 
         try {
+            System.out.println("DEBUG: Starting analysis in directory: " + tempDir);
+            
             // 1. Распаковываем ZIP
             unzip(zipFile, tempDir);
+            System.out.println("DEBUG: ZIP extracted successfully");
 
             // 2. Собираем все файлы
             List<Path> cssFiles = findFiles(tempDir, ".css");
-            List<Path> jsFiles = findFiles(tempDir, ".js");
+            System.out.println("DEBUG: Found " + cssFiles.size() + " CSS files");
+            
+            List<Path> jsFiles = new ArrayList<>();
+            jsFiles.addAll(findFiles(tempDir, ".js"));
+            jsFiles.addAll(findFiles(tempDir, ".jsx"));  // Поддержка React JSX файлов
+            System.out.println("DEBUG: Found " + jsFiles.size() + " JS/JSX files");
+            
             List<Path> htmlFiles = findFiles(tempDir, ".html");
+            System.out.println("DEBUG: Found " + htmlFiles.size() + " HTML files");
 
             // 3. Выбираем метод анализа
+            System.out.println("DEBUG: Starting analysis with method: " + method);
             switch (method) {
                 case SIMPLE_TEXT_SEARCH:
                     analyzeWithSimpleTextSearch(cssFiles, jsFiles, htmlFiles, session);
@@ -58,9 +69,12 @@ public class CodeAnalysisService {
             // 4. Вычисляем общую метрику здоровья
             double totalHealth = calculateHealthScore(session);
             session.setHealthScore(totalHealth);
+            System.out.println("DEBUG: Health score calculated: " + totalHealth);
 
             // 5. Вычисляем метрики качества
+            System.out.println("DEBUG: About to calculate metrics for session: " + session.getId());
             calculateAndSetMetrics(session, method, tempDir);
+            System.out.println("DEBUG: Metrics calculation completed");
 
             return session;
 
@@ -514,14 +528,43 @@ public class CodeAnalysisService {
             }
         }
         
-        // 2. Передача как callback: addEventListener('click', funcName)
+        // 2. JSX/React компоненты: <FuncName /> или <FuncName> (только для компонентов с заглавной буквы)
+        if (funcName.length() > 0 && Character.isUpperCase(funcName.charAt(0))) {
+            Pattern jsxPattern = Pattern.compile("<\\s*" + Pattern.quote(funcName) + "\\s*[/>]");
+            Matcher jsxMatcher = jsxPattern.matcher(allContent);
+            while (jsxMatcher.find()) {
+                count++;
+            }
+        }
+        
+        // 3. Import/Export (только если в проекте используются модули)
+        if (allContent.contains("import ") || allContent.contains("export ")) {
+            // Import: import FuncName или import { FuncName }
+            Pattern importPattern = Pattern.compile("import\\s+(?:\\{[^}]*\\b" + Pattern.quote(funcName) + "\\b[^}]*\\}|\\b" + Pattern.quote(funcName) + "\\b)");
+            if (importPattern.matcher(allContent).find()) {
+                count++;
+            }
+            
+            // Export: export default FuncName (НЕ считаем как использование в том же файле)
+            Pattern exportPattern = Pattern.compile("export\\s+default\\s+" + Pattern.quote(funcName));
+            if (exportPattern.matcher(fileContent).find()) {
+                // Экспорт в том же файле - это определение, а не использование
+                // Но если импортируется в других файлах - это использование
+                String otherFiles = allContent.replace(fileContent, "");
+                if (importPattern.matcher(otherFiles).find()) {
+                    count++;
+                }
+            }
+        }
+        
+        // 4. Передача как callback: addEventListener('click', funcName)
         Pattern callbackPattern = Pattern.compile("[,\\(]\\s*" + Pattern.quote(funcName) + "\\s*[,\\)]");
         Matcher callbackMatcher = callbackPattern.matcher(allContent);
         while (callbackMatcher.find()) {
             count++;
         }
         
-        // 3. Использование в HTML: onclick="funcName()"
+        // 5. Использование в HTML: onclick="funcName()"
         Pattern htmlPattern = Pattern.compile("on\\w+=[\"'][^\"']*" + Pattern.quote(funcName) + "[^\"']*[\"']");
         if (htmlPattern.matcher(allContent).find()) {
             count++;
@@ -600,7 +643,9 @@ public class CodeAnalysisService {
 
             // 2. Собираем все файлы
             List<Path> cssFiles = findFiles(tempDir, ".css");
-            List<Path> jsFiles = findFiles(tempDir, ".js");
+            List<Path> jsFiles = new ArrayList<>();
+            jsFiles.addAll(findFiles(tempDir, ".js"));
+            jsFiles.addAll(findFiles(tempDir, ".jsx"));  // Поддержка React JSX файлов
             List<Path> htmlFiles = findFiles(tempDir, ".html");
 
             // ОПТИМИЗАЦИЯ: читаем весь контент один раз
@@ -979,25 +1024,43 @@ public class CodeAnalysisService {
 
     // Вспомогательные методы для работы с файлами
     private void unzip(MultipartFile zipFile, Path targetDir) throws IOException {
+        System.out.println("DEBUG: Starting unzip to: " + targetDir);
         try (ZipInputStream zis = new ZipInputStream(zipFile.getInputStream())) {
             ZipEntry entry;
+            int fileCount = 0;
             while ((entry = zis.getNextEntry()) != null) {
-                Path filePath = targetDir.resolve(entry.getName());
-                if (entry.isDirectory()) {
+                String entryName = entry.getName();
+                System.out.println("DEBUG: Processing entry: " + entryName + " (isDirectory: " + entry.isDirectory() + ")");
+                
+                // Проверяем, является ли запись директорией (по флагу или по имени)
+                boolean isDirectory = entry.isDirectory() || entryName.endsWith("/") || entryName.endsWith("\\");
+                
+                Path filePath = targetDir.resolve(entryName);
+                if (isDirectory) {
                     Files.createDirectories(filePath);
                 } else {
-                    Files.createDirectories(filePath.getParent());
+                    Path parent = filePath.getParent();
+                    if (parent != null) {
+                        Files.createDirectories(parent);
+                    }
                     Files.copy(zis, filePath, StandardCopyOption.REPLACE_EXISTING);
+                    fileCount++;
                 }
                 zis.closeEntry();
             }
+            System.out.println("DEBUG: Unzip completed. Extracted " + fileCount + " files");
+        } catch (Exception e) {
+            System.err.println("ERROR: Unzip failed: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
     private List<Path> findFiles(Path dir, String extension) throws IOException {
         List<Path> result = new ArrayList<>();
         try (var stream = Files.walk(dir)) {
-            stream.filter(path -> path.toString().endsWith(extension))
+            stream.filter(Files::isRegularFile)  // Проверяем, что это файл, а не директория
+                    .filter(path -> path.toString().endsWith(extension))
                     .forEach(result::add);
         }
         return result;
@@ -1279,13 +1342,39 @@ public class CodeAnalysisService {
             return true;
         }
         
-        // 2. Передается в addEventListener или другие обработчики (БЕЗ скобок)
+        // 2. JSX/React компоненты: <FuncName /> или <FuncName> (только для компонентов с заглавной буквы)
+        if (funcName.length() > 0 && Character.isUpperCase(funcName.charAt(0))) {
+            Pattern jsxPattern = Pattern.compile("<\\s*" + Pattern.quote(funcName) + "\\s*[/>]");
+            if (jsxPattern.matcher(allContent).find()) {
+                return true;
+            }
+        }
+        
+        // 3. Import/Export (только если в проекте используются модули)
+        if (allContent.contains("import ") || allContent.contains("export ")) {
+            String otherFiles = allContent.replace(fileContent, "");
+            Pattern importPattern = Pattern.compile("import\\s+(?:\\{[^}]*\\b" + Pattern.quote(funcName) + "\\b[^}]*\\}|\\b" + Pattern.quote(funcName) + "\\b)");
+            if (importPattern.matcher(otherFiles).find()) {
+                return true;
+            }
+            
+            // Экспортируется (только если импортируется в других файлах)
+            Pattern exportPattern = Pattern.compile("export\\s+(?:default\\s+)?" + Pattern.quote(funcName));
+            if (exportPattern.matcher(fileContent).find()) {
+                // Проверяем, импортируется ли в других файлах
+                if (importPattern.matcher(otherFiles).find()) {
+                    return true;
+                }
+            }
+        }
+        
+        // 4. Передается в addEventListener или другие обработчики (БЕЗ скобок)
         Pattern listenerPattern = Pattern.compile("addEventListener\\s*\\([^,]+,\\s*" + Pattern.quote(funcName) + "\\s*[,\\)]");
         if (listenerPattern.matcher(allContent).find()) {
             return true;
         }
         
-        // 3. Прямой вызов функции (с скобками) - НО исключаем объявление
+        // 5. Прямой вызов функции (с скобками) - НО исключаем объявление
         Pattern callPattern = Pattern.compile("\\b" + Pattern.quote(funcName) + "\\s*\\(");
         Matcher callMatcher = callPattern.matcher(allContent);
         while (callMatcher.find()) {
@@ -1295,11 +1384,6 @@ public class CodeAnalysisService {
             if (!before.contains("function") && !before.contains("=")) {
                 return true;
             }
-        }
-        
-        // 4. Экспортируется
-        if (fileContent.contains("export") && fileContent.contains(funcName)) {
-            return true;
         }
         
         return false;
@@ -1660,19 +1744,44 @@ public class CodeAnalysisService {
      * Проверка покрытия функции с учётом различных паттернов вызова
      */
     private CoverageResult checkFunctionCoverage(String funcName, String allContent, String fileContent) {
-        // 1. Event handlers в HTML
+        // 1. JSX/React компоненты: <FuncName /> или <FuncName> (только для компонентов с заглавной буквы)
+        if (funcName.length() > 0 && Character.isUpperCase(funcName.charAt(0))) {
+            Pattern jsxPattern = Pattern.compile("<\\s*" + Pattern.quote(funcName) + "\\s*[/>]");
+            if (jsxPattern.matcher(allContent).find()) {
+                return new CoverageResult(true, "Используется как React компонент в JSX");
+            }
+        }
+        
+        // 2. Import/Export (только если в проекте используются модули)
+        if (allContent.contains("import ") || allContent.contains("export ")) {
+            String otherFiles = allContent.replace(fileContent, "");
+            Pattern importPattern = Pattern.compile("import\\s+(?:\\{[^}]*\\b" + Pattern.quote(funcName) + "\\b[^}]*\\}|\\b" + Pattern.quote(funcName) + "\\b)");
+            if (importPattern.matcher(otherFiles).find()) {
+                return new CoverageResult(true, "Импортируется в других файлах");
+            }
+            
+            // Экспорт (считается используемым только если импортируется)
+            Pattern exportPattern = Pattern.compile("export\\s+(?:default\\s+)?" + Pattern.quote(funcName));
+            if (exportPattern.matcher(fileContent).find()) {
+                if (importPattern.matcher(otherFiles).find()) {
+                    return new CoverageResult(true, "Экспортируется и импортируется");
+                }
+            }
+        }
+        
+        // 3. Event handlers в HTML
         Pattern htmlEventPattern = Pattern.compile("on\\w+=[\"'][^\"']*" + Pattern.quote(funcName) + "[^\"']*[\"']");
         if (htmlEventPattern.matcher(allContent).find()) {
             return new CoverageResult(true, "Вызывается из HTML event handler");
         }
         
-        // 2. addEventListener - проверяем, что функция передаётся как параметр
+        // 4. addEventListener - проверяем, что функция передаётся как параметр
         Pattern listenerPattern = Pattern.compile("addEventListener\\s*\\([^,]+,\\s*" + Pattern.quote(funcName) + "\\s*[,\\)]");
         if (listenerPattern.matcher(allContent).find()) {
             return new CoverageResult(true, "Используется в addEventListener");
         }
         
-        // 3. Прямой вызов - НО исключаем объявление
+        // 5. Прямой вызов - НО исключаем объявление
         Pattern directCall = Pattern.compile("\\b" + Pattern.quote(funcName) + "\\s*\\(");
         Matcher matcher = directCall.matcher(allContent);
         while (matcher.find()) {
@@ -1684,24 +1793,17 @@ public class CodeAnalysisService {
             }
         }
         
-        // 4. Экспорт (считается используемым)
-        if (fileContent.contains("export") && fileContent.contains(funcName)) {
-            return new CoverageResult(true, "Экспортируется (внешнее использование)");
-        }
-        
-        // 5. Callback функции
+        // 6. Callback функции
         Pattern callbackPattern = Pattern.compile("(?:then|catch|finally|map|filter|forEach|reduce)\\s*\\(\\s*" + Pattern.quote(funcName) + "\\s*[,\\)]");
         if (callbackPattern.matcher(allContent).find()) {
             return new CoverageResult(true, "Используется как callback");
         }
         
-        // 6. setTimeout/setInterval - проверяем, что функция передаётся как параметр
+        // 7. setTimeout/setInterval - проверяем, что функция передаётся как параметр
         Pattern timerPattern = Pattern.compile("(?:setTimeout|setInterval)\\s*\\(\\s*" + Pattern.quote(funcName) + "\\s*[,\\)]");
         if (timerPattern.matcher(allContent).find()) {
             return new CoverageResult(true, "Используется в таймере");
         }
-        
-        // УДАЛЕНО: проверка на глобальные функции - они НЕ должны автоматически считаться используемыми
         
         return new CoverageResult(false, "Не найдено использование");
     }

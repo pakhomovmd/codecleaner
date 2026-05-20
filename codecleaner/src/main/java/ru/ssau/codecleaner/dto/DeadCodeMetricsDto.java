@@ -1,9 +1,11 @@
 package ru.ssau.codecleaner.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DeadCodeMetricsDto {
     
     @JsonProperty("projectName")
@@ -49,6 +51,7 @@ public class DeadCodeMetricsDto {
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
     
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DeadCodeLocation {
         @JsonProperty("file")
         private String file;
